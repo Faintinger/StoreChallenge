@@ -12,9 +12,23 @@ def helloworld():
     return {"Response": "Hello, World!"};
 
 
+@app.route('/ReloadData')
+def reloadData():
+    Operations.Operations().loadData();
+    return {"Response": "Data Reload!"};
+
+
 @app.route('/DateReport', methods=['GET'])
-def report():    
-    return {'error' : 'This is not a valid date format'};
+def report():
+    date = request.args.get('date');
+    try:
+        dt = datetime.datetime.strptime(date,"%Y-%m-%d");
+        result = Operations.Operations.generateReport(date);
+        return json.dumps(result.__dict__);
+    except Exception as e:
+        traceback.print_exc();
+        print(e);
+        return {'error' : 'This is not a valid date format'};
 
 
 if __name__ == '__main__':
