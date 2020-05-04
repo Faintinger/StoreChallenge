@@ -11,6 +11,9 @@ class Operations(object):
             Class Dedicated to process all the information for the response
     """
 
+    #Generate Report Method
+    # Receive date string format yyyy-mm-dd
+    # Retrieve report Object
     @staticmethod
     def generateReport(date):
         op = Operations();
@@ -20,6 +23,8 @@ class Operations(object):
         rep = op.toString(rep);
         return rep;
 
+    #Load Data Method
+    # Validates and reloads the data every 24hrs
     def loadData(self):
         today = datetime.datetime.utcnow();
         if (Data.loadTime is None):
@@ -27,6 +32,9 @@ class Operations(object):
         elif ((today - Data.loadTime).days > 0):
             Data.load();
     
+    #Calculate Totals Methods
+    # Process the general information of the report
+    # Returns report Object
     def calculateTotals(self, date, rep):
         op = Operations();
         dt = datetime.datetime.strptime(date,"%Y-%m-%d");
@@ -48,6 +56,10 @@ class Operations(object):
         rep.commissions = comm;
         return rep;
 
+
+    #Calculate Commissions Methods
+    # Process the general information of the Commissions
+    # Returns Commission Object
     def calculateCommissions(self, df, date):
         total = 0;
         comm = Commission();
@@ -67,7 +79,9 @@ class Operations(object):
         comm.order_average = 0 if len(vendor_order['order_id'])== 0 else total / len(vendor_order['order_id']);
         return comm;
 
-
+    #To String
+    # Convert all values of the report object to String
+    # Returns Report Object as String values
     def toString(self, rep):
         rep.customers = int(rep.customers);
         rep.items = int(rep.items);
