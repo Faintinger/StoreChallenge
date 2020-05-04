@@ -11,7 +11,6 @@ app = flask.Flask(__name__);
 def helloworld():
     return {"Response": "Hello, World!"};
 
-
 @app.route('/ReloadData')
 def reloadData():
     Operations.Operations().loadData();
