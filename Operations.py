@@ -17,6 +17,7 @@ class Operations(object):
         op.loadData();
         rep = Report();
         rep = op.calculateTotals(date, rep);
+        rep = op.toString(rep);
         return rep;
 
     def loadData(self):
@@ -37,6 +38,20 @@ class Operations(object):
         rep.items = order_lines['quantity'].sum();
         rep.customers = len(customer['customer_id']);
         rep.total_discount_amount = order_lines['discounted_amount'].sum();
-        rep.discount_rate_avg = order_lines['discount_rate'].sum() / len(order_lines['discount_rate']);
-        rep.order_total_avg = order_lines['total_amount'].sum() / len(order_lines['total_amount']);
+        if len(order_lines['discount_rate']) > 0:
+            rep.discount_rate_avg = order_lines['discount_rate'].sum() / len(order_lines['discount_rate']);
+            rep.order_total_avg = order_lines['total_amount'].sum() / len(order_lines['total_amount']);
+        else:
+            rep.discount_rate_avg = 0;
+            rep.order_total_avg = 0;
+        return rep;
+
+    def toString(self, rep):
+        rep.customers = int(rep.customers);
+        rep.items = int(rep.items);
+        rep.total_discount_amount = float(rep.total_discount_amount);
+        rep.order_total_avg = float(rep.order_total_avg);
+        rep.discount_rate_avg = float(rep.discount_rate_avg);
+        rep.commissions.total = float(rep.commissions.total);
+        rep.commissions.order_average = float(rep.commissions.order_average);
         return rep;
