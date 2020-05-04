@@ -44,7 +44,29 @@ class Operations(object):
         else:
             rep.discount_rate_avg = 0;
             rep.order_total_avg = 0;
+        comm = op.calculateCommissions(order_lines, date);
+        rep.commissions = comm;
         return rep;
+
+    def calculateCommissions(self, df, date):
+        total = 0;
+        comm = Commission();
+        promotions = dict();
+        vendor = Data.vendor_commissions[Data.vendor_commissions.date == date];
+        vendor_order = pd.merge(df,vendor,left_on='vendor_id',right_on='vendor_id');
+        product_promotions = pd.merge(Data.promotions, Data.product_promotions, left_on='id',right_on='promotion_id');
+        product_promotions = product_promotions[product_promotions.date == date];
+        for row in range(len(Data.promotions)):
+            prom = Data.promotions.loc[row, 'description'];
+            tmp = product_promotions[product_promotions.description == prom];
+            tmp = pd.merge(tmp, vendor_order,left_on='product_id',right_on='product_id')
+            promotions[prom] = (tmp.total_amount * tmp.rate).sum();
+            total = total + promotions[prom];
+        comm.promotions = promotions;
+        comm.total = total;
+        comm.order_average = 0 if len(vendor_order['order_id'])== 0 else total / len(vendor_order['order_id']);
+        return comm;
+
 
     def toString(self, rep):
         rep.customers = int(rep.customers);
@@ -54,4 +76,7 @@ class Operations(object):
         rep.discount_rate_avg = float(rep.discount_rate_avg);
         rep.commissions.total = float(rep.commissions.total);
         rep.commissions.order_average = float(rep.commissions.order_average);
+        for v in rep.commissions.promotions:
+            rep.commissions.promotions[v] = float(rep.commissions.promotions[v]);
+        rep.commissions = json.dumps(rep.commissions.__dict__);
         return rep;
